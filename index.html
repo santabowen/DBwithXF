@@ -60,8 +60,38 @@
 			<div>
 				<form action="backend.php" method="post"> 
 					Enter the password the system needs: <input type = "password" name = "password">
+					<br>
 					Enter the SSN you want to update: <input type = "text" name = "ssn">
+					<br>
+					Enter which Homework or Exam you want to update: 
+					<br>
+					<input type="radio" name="assignmentname" value="HW1"> HW1
+					<br>
+					<input type="radio" name="assignmentname" value="HW2a"> HW2a
+					<br>
+					<input type="radio" name="assignmentname" value="HW2b"> HW2b
+					<br>
+					<input type="radio" name="assignmentname" value="Midterm"> Midterm
+					<br>
+					<input type="radio" name="assignmentname" value="HW3"> HW3
+					<br>
+					<input type="radio" name="assignmentname" value="FExam"> FExam
+					<br>
+					Enter the score you want to update to: <input type = "text" name = "score">
+					<br>
 					<input type = "hidden" name = "problem" value = "f">
+					<input type = "submit">
+				</form>
+			</div>
+		</div>
+
+		<div>
+			<p>Problem g(a):</p>
+			<div>
+				<form action="backend.php" method="post"> 
+					Enter the first number:  <input type = "text" name = "a">
+					Enter the second number: <input type = "text" name = "b">
+					<input type = "hidden" name = "problem" value = "g(a)">
 					<input type = "submit">
 				</form>
 			</div>

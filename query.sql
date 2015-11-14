@@ -196,12 +196,49 @@ BEGIN
   SET @s = ssn;
   SET @n = NewScore;
   SET @p = PASSWORD;
-  SET @query = CONCAT("UPDATE Rawscores SET ", @a, " = ", @n," WHERE SSN = '", 
-      @s, "' AND EXISTS (SELECT * FROM Passwords WHERE CurPasswords = '", @p, "');");
+  SET @query = CONCAT("UPDATE Rawscores SET ", @a, " = ", @n," WHERE SSN = '", @s, 
+    "' AND EXISTS (SELECT * FROM Passwords WHERE CurPasswords = '", @p, "');");
   PREPARE changesc FROM @query;
+  SET @show = CONCAT("SELECT * FROM Rawscores WHERE SSN = '", @s,"';");
+  PREPARE showscore FROM @show;
+  EXECUTE showscore;
   EXECUTE changesc;
+  EXECUTE showscore;
   DEALLOCATE PREPARE changesc;
+  DEALLOCATE PREPARE showscore;
 END
 |
+
+DROP PROCEDURE IF EXISTS MyCalc;
+|
+
+CREATE PROCEDURE MyCalc (IN first INT, IN second INT, OUT rtn INT)
+BEGIN
+  SELECT IF(first > second, 1, IF(first < second, -1, 0)) as rtn;
+END
+|
+
+DROP PROCEDURE IF EXISTS UpdateMidterm;
+|
+
+CREATE PROCEDURE UpdateMidterm (PASSWORD VARCHAR(20), ssn VARCHAR(10), NewScore INT)
+BEGIN
+  IF EXISTS (SELECT * FROM Passwords WHERE CurPasswords = PASSWORD)
+  THEN
+    SET @s = ssn;
+    SET @n = NewScore;
+    SET @p = PASSWORD;
+    SET @query = CONCAT("UPDATE Rawscores SET Midterm = ", @n," WHERE SSN = '", @s, 
+      "';");
+    PREPARE changesc FROM @query;
+    EXECUTE changesc;
+    SELECT "Update successful!" AS Result;
+    DEALLOCATE PREPARE changesc;
+  ELSE
+    SELECT "Update fails!" AS Result;
+  END IF;
+END
+|
+
 
 DELIMITER ;
