@@ -19,31 +19,51 @@ CREATE VIEW WtdPts AS
 
 DELIMITER |
 
-DROP PROCEDURE IF EXISTS ShowRawScores;
+DROP PROCEDURE IF EXISTS CheckPassword;
 |
-CREATE PROCEDURE ShowRawScores (SSN INT)
+CREATE PROCEDURE CheckPassword (PASSWORD VARCHAR(10))
+BEGIN
+  SELECT * 
+  FROM Passwords
+  WHERE CurPasswords = PASSWORD;
+END
+|
+
+DROP PROCEDURE IF EXISTS CheckSSN;
+|
+CREATE PROCEDURE CheckSSN (s INT)
 BEGIN
   SELECT * 
   FROM Rawscores 
-  WHERE SSN = SSN;
+  WHERE SSN = s;
+END
+|
+
+DROP PROCEDURE IF EXISTS ShowRawScores;
+|
+CREATE PROCEDURE ShowRawScores (s INT)
+BEGIN
+  SELECT * 
+  FROM Rawscores 
+  WHERE SSN = s;
 END
 |
 
 DROP PROCEDURE IF EXISTS ShowPercentages;
 |
-CREATE PROCEDURE ShowPercentages (SSN INT)
+CREATE PROCEDURE ShowPercentages (s INT)
 BEGIN
   SELECT r.SSN, r.LName, r.FName, r.Section, 
-         w.HW1 * r.HW1 * 100 AS HW1, w.HW2a * r.HW2a * 100 AS HW2a, 
-         w.HW2b * r.HW2b * 100 AS HW2b, w.Midterm * r.Midterm * 100 AS Midterm, 
-         w.HW3 * r.HW3 * 100 AS HW3, w.FExam * r.FExam * 100 AS FExam
+         FORMAT(w.HW1 * r.HW1 * 100, 2) AS HW1, FORMAT(w.HW2a * r.HW2a * 100, 2) AS HW2a, 
+         FORMAT(w.HW2b * r.HW2b * 100, 2) AS HW2b, FORMAT(w.Midterm * r.Midterm * 100, 2) AS Midterm, 
+         FORMAT(w.HW3 * r.HW3 * 100, 2) AS HW3, FORMAT(w.FExam * r.FExam * 100, 2) AS FExam
   FROM Rawscores AS r, WtdPts AS w 
-  WHERE r.SSN = SSN;
+  WHERE r.SSN = s;
   SELECT r.SSN, r.LName, r.FName, r.Section, 
-         (w.HW1 * r.HW1 + w.HW2a * r.HW2a + w.HW2b * r.HW2b + w.Midterm * r.Midterm + 
-          w.HW3 * r.HW3 + w.FExam * r.FExam) * 100 AS WeightedScore 
+         FORMAT((w.HW1 * r.HW1 + w.HW2a * r.HW2a + w.HW2b * r.HW2b + w.Midterm * r.Midterm + 
+          w.HW3 * r.HW3 + w.FExam * r.FExam) * 100, 2) AS WeightedScore 
   FROM Rawscores AS r, WtdPts AS w 
-  WHERE r.SSN = SSN;
+  WHERE r.SSN = s;
 END
 |
 
@@ -63,7 +83,7 @@ DROP PROCEDURE IF EXISTS AllPercentages;
 |
 CREATE PROCEDURE AllPercentages (PASSWORD VARCHAR(20))
 BEGIN
-  SELECT ws.SSN, ws.LName, ws.FName, ws.Section, ws.WeightedScore
+  SELECT ws.SSN, ws.LName, ws.FName, ws.Section, FORMAT(ws.WeightedScore, 2)
   FROM (SELECT r.SSN, r.LName, r.FName, r.Section, 
                w.HW1 * r.HW1 * 100 AS HW1, w.HW2a * r.HW2a * 100 AS HW2a, 
                w.HW2b * r.HW2b * 100 AS HW2b, w.Midterm * r.Midterm * 100 AS Midterm, 
@@ -80,9 +100,10 @@ DROP PROCEDURE IF EXISTS Stats;
 |
 CREATE PROCEDURE Stats ()
 BEGIN
-  SELECT "MEAN" AS Statistic, AVG(w.HW1) AS HW1, AVG(w.HW2a) AS HW2a, AVG(w.HW2b) AS HW2b, 
-         AVG(w.Midterm) AS Midterm, AVG(w.HW3) AS HW3, AVG(w.FExam) AS FExam, 
-         AVG(w.WeightedScore) AS WeightedScore
+  SELECT "MEAN" AS Statistic, w.Section, FORMAT(AVG(w.HW1), 2) AS HW1, FORMAT(AVG(w.HW2a), 2) AS HW2a, 
+         FORMAT(AVG(w.HW2b), 2) AS HW2b, FORMAT(AVG(w.Midterm),2) AS Midterm, 
+         FORMAT(AVG(w.HW3), 2) AS HW3, FORMAT(AVG(w.FExam), 2) AS FExam, 
+         FORMAT(AVG(w.WeightedScore), 2) AS WeightedScore
   FROM (SELECT r.SSN, r.LName, r.FName, r.Section, 
                w.HW1 * r.HW1 * 100 AS HW1, w.HW2a * r.HW2a * 100 AS HW2a, 
                w.HW2b * r.HW2b * 100 AS HW2b, w.Midterm * r.Midterm * 100 AS Midterm, 
@@ -93,9 +114,10 @@ BEGIN
         WHERE r.SSN != '0001' AND r.SSN != '0002') AS w
   WHERE w.Section = "315";
 
-  SELECT "MEAN" AS Statistic, AVG(w.HW1) AS HW1, AVG(w.HW2a) AS HW2a, AVG(w.HW2b) AS HW2b, 
-         AVG(w.Midterm) AS Midterm, AVG(w.HW3) AS HW3, AVG(w.FExam) AS FExam, 
-         AVG(w.WeightedScore) AS WeightedScore
+  SELECT "MEAN" AS Statistic, w.Section, FORMAT(AVG(w.HW1), 2) AS HW1, FORMAT(AVG(w.HW2a), 2) AS HW2a, 
+         FORMAT(AVG(w.HW2b), 2) AS HW2b, FORMAT(AVG(w.Midterm),2) AS Midterm, 
+         FORMAT(AVG(w.HW3), 2) AS HW3, FORMAT(AVG(w.FExam), 2) AS FExam, 
+         FORMAT(AVG(w.WeightedScore), 2) AS WeightedScore
   FROM (SELECT r.SSN, r.LName, r.FName, r.Section, 
                w.HW1 * r.HW1 * 100 AS HW1, w.HW2a * r.HW2a * 100 AS HW2a, 
                w.HW2b * r.HW2b * 100 AS HW2b, w.Midterm * r.Midterm * 100 AS Midterm, 
@@ -106,9 +128,10 @@ BEGIN
         WHERE r.SSN != '0001' AND r.SSN != '0002') AS w
   WHERE w.Section = "415";
 
-  SELECT "MINIMUM" AS Statistic, MIN(w.HW1) AS HW1, MIN(w.HW2a) AS HW2a, MIN(w.HW2b) AS HW2b, 
-         MIN(w.Midterm) AS Midterm, MIN(w.HW3) AS HW3, MIN(w.FExam) AS FExam, 
-         MIN(w.WeightedScore) AS WeightedScore
+  SELECT "MINIMUM" AS Statistic, w.Section, FORMAT(MIN(w.HW1), 2) AS HW1, FORMAT(MIN(w.HW2a), 2) AS HW2a, 
+         FORMAT(MIN(w.HW2b), 2) AS HW2b, FORMAT(MIN(w.Midterm),2) AS Midterm, 
+         FORMAT(MIN(w.HW3), 2) AS HW3, FORMAT(MIN(w.FExam), 2) AS FExam, 
+         FORMAT(MIN(w.WeightedScore), 2) AS WeightedScore
   FROM (SELECT r.SSN, r.LName, r.FName, r.Section, 
                w.HW1 * r.HW1 * 100 AS HW1, w.HW2a * r.HW2a * 100 AS HW2a, 
                w.HW2b * r.HW2b * 100 AS HW2b, w.Midterm * r.Midterm * 100 AS Midterm, 
@@ -119,9 +142,10 @@ BEGIN
         WHERE r.SSN != '0001' AND r.SSN != '0002') AS w
   WHERE w.Section = "315";
 
-  SELECT "MINIMUM" AS Statistic, MIN(w.HW1) AS HW1, MIN(w.HW2a) AS HW2a, MIN(w.HW2b) AS HW2b, 
-         MIN(w.Midterm) AS Midterm, MIN(w.HW3) AS HW3, MIN(w.FExam) AS FExam, 
-         MIN(w.WeightedScore) AS WeightedScore
+  SELECT "MINIMUM" AS Statistic, w.Section, FORMAT(MIN(w.HW1), 2) AS HW1, FORMAT(MIN(w.HW2a), 2) AS HW2a, 
+         FORMAT(MIN(w.HW2b), 2) AS HW2b, FORMAT(MIN(w.Midterm),2) AS Midterm, 
+         FORMAT(MIN(w.HW3), 2) AS HW3, FORMAT(MIN(w.FExam), 2) AS FExam, 
+         FORMAT(MIN(w.WeightedScore), 2) AS WeightedScore
   FROM (SELECT r.SSN, r.LName, r.FName, r.Section, 
                w.HW1 * r.HW1 * 100 AS HW1, w.HW2a * r.HW2a * 100 AS HW2a, 
                w.HW2b * r.HW2b * 100 AS HW2b, w.Midterm * r.Midterm * 100 AS Midterm, 
@@ -132,9 +156,10 @@ BEGIN
         WHERE r.SSN != '0001' AND r.SSN != '0002') AS w
   WHERE w.Section = "415";
 
-  SELECT "MAXIMUM" AS Statistic, MAX(w.HW1) AS HW1, MAX(w.HW2a) AS HW2a, MAX(w.HW2b) AS HW2b, 
-         MAX(w.Midterm) AS Midterm, MAX(w.HW3) AS HW3, MAX(w.FExam) AS FExam, 
-         MAX(w.WeightedScore) AS WeightedScore
+  SELECT "MAXIMUM" AS Statistic, w.Section, FORMAT(MAX(w.HW1), 2) AS HW1, FORMAT(MAX(w.HW2a), 2) AS HW2a, 
+         FORMAT(MAX(w.HW2b), 2) AS HW2b, FORMAT(MAX(w.Midterm),2) AS Midterm, 
+         FORMAT(MAX(w.HW3), 2) AS HW3, FORMAT(MAX(w.FExam), 2) AS FExam, 
+         FORMAT(MAX(w.WeightedScore), 2) AS WeightedScore
   FROM (SELECT r.SSN, r.LName, r.FName, r.Section, 
                w.HW1 * r.HW1 * 100 AS HW1, w.HW2a * r.HW2a * 100 AS HW2a, 
                w.HW2b * r.HW2b * 100 AS HW2b, w.Midterm * r.Midterm * 100 AS Midterm, 
@@ -145,9 +170,10 @@ BEGIN
         WHERE r.SSN != '0001' AND r.SSN != '0002') AS w
   WHERE w.Section = "315";
 
-  SELECT "MAXIMUM" AS Statistic, MAX(w.HW1) AS HW1, MAX(w.HW2a) AS HW2a, MAX(w.HW2b) AS HW2b, 
-         MAX(w.Midterm) AS Midterm, MAX(w.HW3) AS HW3, MAX(w.FExam) AS FExam, 
-         MAX(w.WeightedScore) AS WeightedScore
+  SELECT "MAXIMUM" AS Statistic, w.Section, FORMAT(MAX(w.HW1), 2) AS HW1, FORMAT(MAX(w.HW2a), 2) AS HW2a, 
+         FORMAT(MAX(w.HW2b), 2) AS HW2b, FORMAT(MAX(w.Midterm),2) AS Midterm, 
+         FORMAT(MAX(w.HW3), 2) AS HW3, FORMAT(MAX(w.FExam), 2) AS FExam, 
+         FORMAT(MAX(w.WeightedScore), 2) AS WeightedScore
   FROM (SELECT r.SSN, r.LName, r.FName, r.Section, 
                w.HW1 * r.HW1 * 100 AS HW1, w.HW2a * r.HW2a * 100 AS HW2a, 
                w.HW2b * r.HW2b * 100 AS HW2b, w.Midterm * r.Midterm * 100 AS Midterm, 
@@ -158,9 +184,10 @@ BEGIN
         WHERE r.SSN != '0001' AND r.SSN != '0002') AS w
   WHERE w.Section = "415";
 
-  SELECT "Std. Dev." AS Statistic, STDDEV(w.HW1) AS HW1, STDDEV(w.HW2a) AS HW2a, 
-         STDDEV(w.HW2b) AS HW2b, STDDEV(w.Midterm) AS Midterm, STDDEV(w.HW3) AS HW3, 
-         STDDEV(w.FExam) AS FExam, STDDEV(w.WeightedScore) AS WeightedScore
+  SELECT "Std. Dev." AS Statistic, w.Section, FORMAT(STDDEV(w.HW1), 2) AS HW1, FORMAT(STDDEV(w.HW2a), 2) AS HW2a, 
+         FORMAT(STDDEV(w.HW2b), 2) AS HW2b, FORMAT(STDDEV(w.Midterm),2) AS Midterm, 
+         FORMAT(STDDEV(w.HW3), 2) AS HW3, FORMAT(STDDEV(w.FExam), 2) AS FExam, 
+         FORMAT(STDDEV(w.WeightedScore), 2) AS WeightedScore
   FROM (SELECT r.SSN, r.LName, r.FName, r.Section, 
                w.HW1 * r.HW1 * 100 AS HW1, w.HW2a * r.HW2a * 100 AS HW2a, 
                w.HW2b * r.HW2b * 100 AS HW2b, w.Midterm * r.Midterm * 100 AS Midterm, 
@@ -171,9 +198,10 @@ BEGIN
         WHERE r.SSN != '0001' AND r.SSN != '0002') AS w
   WHERE w.Section = "315";
 
-  SELECT "Std. Dev." AS Statistic, STDDEV(w.HW1) AS HW1, STDDEV(w.HW2a) AS HW2a, 
-         STDDEV(w.HW2b) AS HW2b, STDDEV(w.Midterm) AS Midterm, STDDEV(w.HW3) AS HW3, 
-         STDDEV(w.FExam) AS FExam, STDDEV(w.WeightedScore) AS WeightedScore
+  SELECT "Std. Dev." AS Statistic, w.Section, FORMAT(STDDEV(w.HW1), 2) AS HW1, FORMAT(STDDEV(w.HW2a), 2) AS HW2a, 
+         FORMAT(STDDEV(w.HW2b), 2) AS HW2b, FORMAT(STDDEV(w.Midterm),2) AS Midterm, 
+         FORMAT(STDDEV(w.HW3), 2) AS HW3, FORMAT(STDDEV(w.FExam), 2) AS FExam, 
+         FORMAT(STDDEV(w.WeightedScore), 2) AS WeightedScore
   FROM (SELECT r.SSN, r.LName, r.FName, r.Section, 
                w.HW1 * r.HW1 * 100 AS HW1, w.HW2a * r.HW2a * 100 AS HW2a, 
                w.HW2b * r.HW2b * 100 AS HW2b, w.Midterm * r.Midterm * 100 AS Midterm, 
@@ -212,9 +240,9 @@ END
 DROP PROCEDURE IF EXISTS MyCalc;
 |
 
-CREATE PROCEDURE MyCalc (IN first INT, IN second INT, OUT rtn INT)
+CREATE PROCEDURE MyCalc (IN first INT, IN second INT, OUT indicator INT)
 BEGIN
-  SELECT IF(first > second, 1, IF(first < second, -1, 0)) as rtn;
+  SELECT IF(first > second, 1, (SELECT IF(second > first, -1, 0))) INTO indicator;
 END
 |
 
@@ -223,22 +251,20 @@ DROP PROCEDURE IF EXISTS UpdateMidterm;
 
 CREATE PROCEDURE UpdateMidterm (PASSWORD VARCHAR(20), ssn VARCHAR(10), NewScore INT)
 BEGIN
-  IF EXISTS (SELECT * FROM Passwords WHERE CurPasswords = PASSWORD)
-  THEN
-    SET @s = ssn;
-    SET @n = NewScore;
-    SET @p = PASSWORD;
-    SET @query = CONCAT("UPDATE Rawscores SET Midterm = ", @n," WHERE SSN = '", @s, 
-      "';");
-    PREPARE changesc FROM @query;
-    EXECUTE changesc;
-    SELECT "Update successful!" AS Result;
-    DEALLOCATE PREPARE changesc;
-  ELSE
-    SELECT "Update fails!" AS Result;
-  END IF;
+  SET @s = ssn;
+  SET @n = NewScore;
+  SET @p = PASSWORD;
+  SELECT IF( EXISTS(SELECT * FROM Passwords WHERE CurPasswords = PASSWORD), 
+             (SELECT "Update successful!" AS result), (SELECT "Update failed!" AS result));
+  SET @upmid = CONCAT("UPDATE Rawscores SET Midterm = ", @n," WHERE SSN = '", @s, 
+    "' AND EXISTS (SELECT * FROM Passwords WHERE CurPasswords = '", @p, "');");
+  PREPARE updatemid FROM @upmid;
+  EXECUTE updatemid;
+  DEALLOCATE PREPARE updatemid;
 END
 |
+
+
 
 
 DELIMITER ;

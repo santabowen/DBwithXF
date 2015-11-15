@@ -1,15 +1,34 @@
 <html>
 	<body>
-		<div>PHP is the best computer language in the world!!!! Bu fu lai bian!!!</div>
+		<div>This is the implementation of updating the Midterm score. </div>
+		<div>Implemented by Bowen Li(bli26) and Dongrui Zhong(dzhong3).</div>
 		<div>
-			<p>Problem a:</p>
+			<p>Problem: To compare two number values.</p>
 			<div>
 				<form action="update.php" method="post"> 
-					Enter the SSN to be checked: <input type = "text" name = "ssn">
+					Enter first number: <input type = "text" name = "a">
+					<br>
+					Enter second number: <input type = "text" name = "b">
+					<br>
 					<input type = "hidden" name = "problem" value = "a">
 					<input type = "submit">
 				</form>
 			</div>
+
+			<div>
+				<p>To update the Midterm score.</p>
+				<form action="update.php" method="post"> 
+					Enter the password the system needs: <input type = "password" name = "password">
+					<br>
+					Enter the SSN you want to update: <input type = "text" name = "ssn">
+					<br>
+					Enter the score you want to update to: <input type = "text" name = "score">
+					<br>
+					<input type = "hidden" name = "problem" value = "b">
+					<input type = "submit">
+				</form>
+			</div>
+
 		</div>
 	</body>
 </html>
