@@ -3,12 +3,38 @@
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{mathrsfs}
+\usepackage{pdfpages}
+
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
 \author{Dongrui Zhong, Bowen Li}
 \title{Databases Project Phase 1: Proposal}
 \addtolength{\voffset}{-1cm}
 \addtolength{\hoffset}{-1cm}
 \addtolength{\textwidth}{+2cm}
 \addtolength{\textheight}{+3cm}
+
+\lstset{frame=tb,
+	language=Sql,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
 
 \begin{document}
 \maketitle
@@ -19,22 +45,97 @@ Dongrui Zhong(Dzhong3), Bowen Li(bli26).
 Economical data ranges the whole United States. Data includes people size, different kinds of ratios(including education ratio, sex ratio age ratio etc.), median income, employments of all states and different years.
 
 \section*{3. Questions}
+1. List all states with the Health ratios with ChildrenPerHousehold greater and equal than two; \\
+
+\noindent
+2. List the GDP and Agriculture, Industry ratio and AnnualPayroll of the states with top 10 highest numbers of HighSchools. \\
+
+\noindent
+3. List the PerCapitaIncome, MedianHouseholdIncome of all state with all information in the Families table, with the constraint that Male Sex ratio is greater than the Female ratio. \\
+
+\noindent
+4. List the Income information like in 3 of all state with the constraint that Male Sex ratio is smaller and equal than the Female ratio. \\
+
+\noindent
+5. List the DiplomaRate of Bachelor, Master, Doctor of states which has top 10 highest numbers of HighSchool. Also, together list all the Income information and Business information of these states. \\
+
+\noindent
+6. List the Race, Income and Health information of all states after(not equal than) Year 2008. \\
+
+\noindent
+7. List some statistics of Employment information of all states of every year. The statistics include sample mean, sample deviation, sample median. \\
+
+\noindent
+8. List the mean of sum of Hospitals of all states, grouped by ChildrenPerHousehold(rounded values). Together show the median MedianHouseholdIncome of them. \\
+
+\noindent
+9. List the population ratios of states together with the Employment ratios of them. \\
+
+\noindent
+10. List the HomeOwnershipRate of states with Families who have ChildrenPerHousehold greater and equal than 2, together with all information in the Income table. \\
+
+\noindent
+11. List the information in Health table together with Business information of states, which has a greater Female rate than Male after Year 2005. \\
+
+\noindent
+12. List all Industry and Services rates together with Race ratios of all states which has greater number of Male than Female with top 10 greatest ratio MedianHouseholdIncome. \\
+
+\noindent
+13. List all information of Economy, Business, Health tables together with PerCapitaIncome of all states. These states should have ChildrenPerHousehold greater and equal than 1, and the sum ratio of DiplomaRate of higher than Bachelor is greater than 32\%; \\
+
+\noindent
+14. List the Poverty rate of all states which is of top 10. Also List number of HighSchool the their number ranks(ordered by increasing number) of these states. \\
+
+\noindent
+15. List the InsuranceCoverage of all states together their Race ratios of top 10 number of NumberOfFirms.
 
 \section*{4. Relational Data Model}
+\begin{center}
+	\includegraphics[width = 0.9\textwidth]{"1"}
+	\includegraphics[width = 0.9\textwidth]{"2"}
+\end{center}
 
 \section*{5. SQL Statement}
+Here we list several statements from problem 3.
+\begin{lstlisting}
+1.
+SELECT h.*
+FROM HEALTH AS h, Families AS f
+WHERE f.ChildrenPerHousehold >= 2 AND f.State = h.State AND f.Year = h.Year;
+
+2.
+SELECT e.*
+FROM Economy AS e, 
+		(SELECT od.*
+		 FROM (SELECT d.*
+				  FROM DiplomaRate AS d
+				  ORDER BY d.HighSchool) AS od
+		 LIMIT 10) AS temp
+WHERE  AND e.State = temp.State AND e.Year = temp.Year;
+
+
+3.
+SELECT i.PerCapitaIncome, i.MedianHouseholdIncome, f.*
+FROM Income AS i, Families AS f, Sex AS s
+WHERE s.Male > s.Female AND i.State = f.State AND i.Year = f.Year AND f.State = s.State AND f.Year = s.Year;
+
+4.
+SELECT i.PerCapitaIncome, i.MedianHouseholdIncome, f.*
+FROM Income AS i, Families AS f, Sex AS s
+WHERE s.Male < s.Female AND i.State = f.State AND i.Year = f.Year AND f.State = s.State AND f.Year = s.Year;
+\end{lstlisting}
 
 \section*{6. How to Load Values}
 We will load data from the following website: https://census.gov and get the ".csv" or some other data type and load them into our own database. 
 
 \section*{7. Report}
-The final report can be a small website including frontend, backend and our database. Using the Model-View-Controller design pattern to design an interface satisfying people viewing some statistics of data, access of the backend whole or part dataset when login via password. Also, for a great part of the interface, we may implement some machine learning algorithms to do some prediction using data in the database.
+The final report can be a small website including frontend, backend and our database. Using the Model-View-Controller design pattern to design an interface satisfying people viewing some statistics of data, access of the backend whole or part dataset when login via password. Also, for a great part of the interface, we may implement some data mining algorithms to do some prediction using data in the database.
 
 \section*{8. Advanced Topics}
-We may focus mainly on designing data mining(machine learning) algorithms and implementing an full stack website(interface) using Python and Django. 
+We may focus mainly on designing data mining(linear regression model) algorithms and implementing an full stack website(interface) using Python and Django. 
 
 \section*{9. Database Platform}
-We may implement using Python and Django, and using SQLite as our Database. One of our computer is Macbook(1.1 GHz Intel Core M, 8 GB 1600 MHz DDR3, Intel HD Graphics 5300 1536 MB) and anther is Lenovo()
+We may implement using Python and Django, and using SQLite as our Database. One of our computer is Macbook(1.1 GHz Intel Core M, 8 GB 1600 MHz DDR3, Intel HD Graphics 5300 1536 MB) and anther is Lenovo(Intel(R) Core(TM) i7-4510U CPU 2.00 GHz 2.60 GHz, 16GB RAM)
 
 \end{document} 
 
